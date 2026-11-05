@@ -1,5 +1,10 @@
 .venv/
 __pycache__/
-*.pyc
-data/generated/
+*.py[cod]
 .env
+data/generated/
+tmp/
+output/
+audit.json
+.pytest_cache/
+/Guide_projet_Python_equipe_Git.pdf

@@ -1,0 +1,12 @@
+{"timestamp":"2026-11-05T10:00:00","level":"INFO","ip":"192.168.1.10","user_id":"alice","connection":["192.168.1.10",443,"HTTPS"],"payload":{"event":"login","status":"success"}}
+{"timestamp":"2026-11-05T10:00:01","level":" warning ","ip":"192.168.1.20","user_id":"bob","connection":["192.168.1.20",443,"HTTPS"],"payload":{"event":"login","status":"failure"}}
+{"timestamp":"2026-11-05T10:00:02","level":"INFO","ip":"192.168.1.10","user_id":"alice","connection":["192.168.1.10",443,"HTTPS"],"payload":{"event":"request","path":"/home","status":"success"}}
+{"timestamp":"2026-11-05T10:00:03","level":"WARNING","ip":"192.168.1.20","user_id":"bob","connection":["192.168.1.20",443,"HTTPS"],"payload":{"event":"login","status":"failure"}}
+{"timestamp":"2026-11-05T10:00:04","level":"ERROR","ip":"192.168.1.20","user_id":"bob","connection":["192.168.1.20",443,"HTTPS"],"payload":{"event":"login","status":"failure"}}
+{"timestamp":"2026-11-05T10:00:05","level":"CRITICAL","ip":"192.168.1.66","user_id":"carol","connection":["192.168.1.66",443,"HTTPS"],"payload":{"event":"request","path":"/admin","status":"denied"}}
+{"timestamp":"2026-11-05T10:00:06","level":"INFO","ip":"192.168.1.20","user_id":"bob","connection":["192.168.1.20",443,"HTTPS"],"payload":{"event":"login","status":"success"}}
+{"timestamp":"2026-11-05T10:00:07","level":"WARNING","ip":"192.168.1.20","user_id":"bob","connection":["192.168.1.20",443,"HTTPS"],"payload":{"event":"login","status":"failure"}}
+{"timestamp":"2026-11-05T10:00:08","level":"INFO","ip":"192.168.1.30","user_id":"service","connection":["192.168.1.30",443,"HTTPS"],"payload":"Health check OK"}
+{"timestamp":"2026-11-05T10:00:09","level":"ERROR","ip":"192.168.1.10","user_id":"alice","connection":["192.168.1.10",443,"HTTPS"],"payload":{"event":"request","path":"/report","status":"failure"}}
+{"timestamp":
+
