@@ -1,6 +1,6 @@
 from datetime import datetime
 
-BLACKLIST = frozenset({"192.168.1.99","192.168.1.66"})
+BLACKLIST = frozenset({"192.168.1.99", "192.168.1.66"})
 
 RECORDS = [
     # ligne 1
