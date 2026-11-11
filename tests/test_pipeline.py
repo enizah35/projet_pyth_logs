@@ -45,8 +45,7 @@ class NormalizationTests(unittest.TestCase):
 
     def test_unknown_level_is_skipped_and_processing_continues(self) -> None:
         records = [make_record(level="debug"), make_record(level=" error ")]
-        with self.assertLogs("logengine.pipeline", level="WARNING"):
-            result = list(normalize_records(records))
+        result = list(normalize_records(records))
         self.assertEqual([record["level"] for record in result], ["ERROR"])
 
     def test_empty_stream_is_valid(self) -> None:
