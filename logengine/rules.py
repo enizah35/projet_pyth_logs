@@ -1,10 +1,14 @@
-"""P2 : fonctions de sécurité et moteur de règles extensible."""
+"""P2 : règles de sécurité et moteur qui les applique.
+
+Une règle est une fonction qui reçoit un événement et la configuration,
+puis renvoie une alerte (dictionnaire) ou None.
+"""
 
 from collections.abc import Callable, Iterable, Iterator
 
 
-def _make_alert(record: dict, alert_type: str, message: str) -> dict:
-    """Construire une alerte conforme au contrat partagé avec P1 et P3."""
+def make_alert(record: dict, alert_type: str, message: str) -> dict:
+    """Construire une alerte au format convenu avec P3."""
     return {
         "type": alert_type,
         "timestamp": record["timestamp"].isoformat(),
@@ -14,40 +18,45 @@ def _make_alert(record: dict, alert_type: str, message: str) -> dict:
     }
 
 
-def rule_blacklist(record: dict, **config) -> dict | None:
-    """Signaler une IP figurant dans la blacklist fournie par P1."""
+def rule_blacklist(record: dict, **config: object) -> dict | None:
+    """Alerter si l'IP figure dans config["blacklist"].
+
+    Sans blacklist, KeyError signale l'erreur de configuration.
+    """
     blacklist = config["blacklist"]
     if record["ip"] in blacklist:
-        return _make_alert(
+        return make_alert(
             record, "blacklist", "IP présente dans la blacklist"
         )
     return None
 
 
-def rule_critical(record: dict, **config) -> dict | None:
-    """Règle facultative, désactivée dans le scénario de référence."""
+def rule_critical(record: dict, **config: object) -> dict | None:
+    """Alerter si l'événement est de niveau CRITICAL (règle facultative)."""
     if record["level"] == "CRITICAL":
-        return _make_alert(record, "critical", "Événement de niveau CRITICAL")
+        return make_alert(record, "critical", "Événement de niveau CRITICAL")
     return None
 
 
 def apply_security_rules(
-    *rules: Callable, records: Iterable[dict], **config
+    *rules: Callable[..., dict | None],
+    records: Iterable[dict],
+    **config: object,
 ) -> Iterator[dict]:
-    """Appliquer les fonctions reçues à chaque événement, sans les accumuler.
+    """Appliquer les règles à chaque événement et le renvoyer avec ses alertes.
 
-    Les fonctions sont passées dans *rules et leur configuration dans **config.
-    Tous les événements restent présents, même avec une liste alerts vide.
-    Une erreur de règle reste visible pour pouvoir être corrigée.
+    *rules regroupe les fonctions reçues, **config les paramètres nommés.
+    records, placé après *rules, doit être donné par son nom. Tous les
+    événements ressortent, même sans alerte.
     """
     for record in records:
-        # La liste concerne seulement cet événement, jamais le flux entier.
+        # Alertes de cet événement seulement : rien n'est accumulé
         alerts = list(record.get("alerts", []))
         for rule in rules:
-            # **config transmet les paramètres nommés à chaque règle.
             alert = rule(record, **config)
             if alert is not None:
                 alerts.append(alert)
+
         checked_record = record.copy()
         checked_record["alerts"] = alerts
         yield checked_record

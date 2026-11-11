@@ -1,0 +1,10 @@
+{"timestamp":"2026-11-05T10:00:00","level":"INFO","ip":"192.168.1.10","user_id":"alice","connection":["192.168.1.10",443,"HTTPS"],"payload":{"event":"login","status":"success"}}
+{"timestamp":"2026-11-05T10:00:05","level":"INFO","ip":"192.168.1.20","user_id":"bob","connection":["192.168.1.20",22,"SSH"],"payload":{"event":"login","status":"success"}}
+{"timestamp":"2026-11-05T10:01:00","level":"WARNING","ip":"203.0.113.42","user_id":"admin","connection":["203.0.113.42",22,"SSH"],"payload":{"event":"login","status":"failure"}}
+{"timestamp":"2026-11-05T10:01:08","level":"WARNING","ip":"203.0.113.42","user_id":"admin","connection":["203.0.113.42",22,"SSH"],"payload":{"event":"login","status":"failure"}}
+{"timestamp":"2026-11-05T10:01:16","level":"WARNING","ip":"203.0.113.42","user_id":"admin","connection":["203.0.113.42",22,"SSH"],"payload":{"event":"login","status":"failure"}}
+{"timestamp":"2026-11-05T10:01:24","level":"ERROR","ip":"203.0.113.42","user_id":"admin","connection":["203.0.113.42",22,"SSH"],"payload":{"event":"login","status":"failure"}}
+{"timestamp":"2026-11-05T10:01:32","level":"CRITICAL","ip":"203.0.113.42","user_id":"admin","connection":["203.0.113.42",22,"SSH"],"payload":{"event":"login","status":"failure"}}
+{"timestamp":"2026-11-05T10:02:00","level":"INFO","ip":"192.168.1.30","user_id":"charlie","connection":["192.168.1.30",443,"HTTPS"],"payload":{"event":"request","status":"success","path":"/dashboard"}}
+{"timestamp":"2026-11-05T10:02:30","level":"ERROR","ip":"192.168.1.40","user_id":"david","connection":["192.168.1.40",443,"HTTPS"],"payload":"Service unavailable"}
+{"timestamp":"2026-11-05T10:03:00","level":"INFO","ip":"192.168.1.10","user_id":"alice","connection":["192.168.1.10",443,"HTTPS"],"payload":{"event":"logout","status":"success"}}

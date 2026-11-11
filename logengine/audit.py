@@ -1,32 +1,40 @@
-"""P2 : export des noms et types des variables d'une portée Python."""
+"""P2 : audit des variables d'une portée (globals(), locals()).
 
-from collections.abc import Mapping
+Seuls les noms et les types sont exportés, jamais les valeurs.
+"""
+
 import json
-from pathlib import Path
+import os
+
+
+def describe_scope(scope: dict) -> dict:
+    """Associer chaque nom de variable au nom de son type.
+
+    type() ne parcourt pas un générateur : le flux n'est pas consommé.
+    """
+    types = {}
+    for name, value in scope.items():
+        types[name] = type(value).__name__
+    return types
 
 
 def export_audit(
-    path: str | Path,
-    global_scope: Mapping[str, object],
-    local_scope: Mapping[str, object],
+    path: str | os.PathLike, global_scope: dict, local_scope: dict
 ) -> None:
-    """Exporter les types, sans dévoiler les valeurs ni consommer de flux.
+    """Écrire en JSON les types des variables des deux portées reçues.
 
-    Le code appelant fournit globals() et locals() depuis la portée choisie.
-    Un appel interne décrirait la portée de l'exporteur, pas celle de main.
+    L'appelant fournit globals() et locals() : appelés ici, ils
+    décriraient ce module et non le code audité.
     """
-    # Chaque portée est un dictionnaire : on parcourt ses paires nom/valeur.
-    global_types = {}
-    for name, value in global_scope.items():
-        global_types[name] = type(value).__name__
+    report = {
+        "globals": describe_scope(global_scope),
+        "locals": describe_scope(local_scope),
+    }
 
-    local_types = {}
-    for name, value in local_scope.items():
-        local_types[name] = type(value).__name__
+    folder = os.path.dirname(path)
+    if folder != "":
+        os.makedirs(folder, exist_ok=True)
 
-    report = {"globals": global_types, "locals": local_types}
-    destination = Path(path)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    with open(destination, "w", encoding="utf-8") as output:
+    with open(path, "w", encoding="utf-8") as output:
         json.dump(report, output, ensure_ascii=False, indent=2, sort_keys=True)
         output.write("\n")

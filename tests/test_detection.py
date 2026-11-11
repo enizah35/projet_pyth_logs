@@ -1,3 +1,5 @@
+"""Tests P3 : détection de force brute."""
+
 from datetime import datetime, timedelta
 import unittest
 
