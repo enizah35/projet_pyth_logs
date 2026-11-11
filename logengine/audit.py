@@ -1,32 +1,50 @@
-"""P2 : export des noms et types des variables d'une portée Python."""
+"""P2 : audit des variables présentes dans une portée Python.
 
-from collections.abc import Mapping
+globals() renvoie le dictionnaire des variables du module, locals() celui
+des variables de la fonction en cours. L'audit écrit dans un fichier JSON
+le nom et le type de chacune.
+"""
+
 import json
-from pathlib import Path
+import os
 
 
-def export_audit(
-    path: str | Path,
-    global_scope: Mapping[str, object],
-    local_scope: Mapping[str, object],
-) -> None:
-    """Exporter les types, sans dévoiler les valeurs ni consommer de flux.
+def describe_scope(scope: dict) -> dict:
+    """Associer chaque nom de variable au nom de son type.
 
-    Le code appelant fournit globals() et locals() depuis la portée choisie.
-    Un appel interne décrirait la portée de l'exporteur, pas celle de main.
+    Exemple : {"seuil": 3, "ips": {"1.2.3.4"}} donne
+              {"seuil": "int", "ips": "set"}.
+
+    Les valeurs ne sont pas exportées : elles peuvent être sensibles, et
+    certaines (modules, générateurs) ne s'écrivent pas en JSON. type() ne
+    parcourt pas un générateur, donc le flux de logs n'est pas consommé.
     """
-    # Chaque portée est un dictionnaire : on parcourt ses paires nom/valeur.
-    global_types = {}
-    for name, value in global_scope.items():
-        global_types[name] = type(value).__name__
+    types = {}
+    for name, value in scope.items():
+        types[name] = type(value).__name__
+    return types
 
-    local_types = {}
-    for name, value in local_scope.items():
-        local_types[name] = type(value).__name__
 
-    report = {"globals": global_types, "locals": local_types}
-    destination = Path(path)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    with open(destination, "w", encoding="utf-8") as output:
+def export_audit(path, global_scope: dict, local_scope: dict) -> None:
+    """Écrire le rapport d'audit dans le fichier path.
+
+    globals() et locals() sont appelés par le code qui veut être audité,
+    puis passés ici :
+        export_audit("output/audit.json", globals(), locals())
+    Si on les appelait dans cette fonction, on obtiendrait les variables
+    de audit.py et non celles de main.py.
+    """
+    report = {
+        "globals": describe_scope(global_scope),
+        "locals": describe_scope(local_scope),
+    }
+
+    # Créer le dossier de destination s'il n'existe pas encore.
+    folder = os.path.dirname(path)
+    if folder != "":
+        os.makedirs(folder, exist_ok=True)
+
+    # "with" ferme le fichier automatiquement, même en cas d'erreur.
+    with open(path, "w", encoding="utf-8") as output:
         json.dump(report, output, ensure_ascii=False, indent=2, sort_keys=True)
         output.write("\n")

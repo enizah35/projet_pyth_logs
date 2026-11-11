@@ -1,7 +1,7 @@
 """Démonstration P2 sur dictionnaires manuels : python -m examples.demo_p2."""
 
 from datetime import datetime
-from pathlib import Path
+import os
 
 from logengine.audit import export_audit
 from logengine.pipeline import normalize_records
@@ -54,7 +54,9 @@ def main() -> None:
             alert_count += 1
             print(f"  ALERTE {alert['type']}: {alert['message']}")
 
-    audit_path = Path(__file__).resolve().parents[1] / "output/p2/audit.json"
+    # Dossier du projet : le parent du dossier examples/.
+    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    audit_path = os.path.join(project_dir, "output", "p2", "audit.json")
     export_audit(audit_path, globals(), locals())
     print(f"\nBilan P2 : {total} événements, {alert_count} alerte blacklist.")
     print(f"Audit : {audit_path}")
