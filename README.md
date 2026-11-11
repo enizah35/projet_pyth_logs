@@ -1,190 +1,228 @@
-# Projet Python : analyse de logs en flux
+# Moteur d'analyse de logs en flux
 
-Projet ING3 en trinôme, Python 3.10 ou supérieur. Le contrat de données et la
-répartition figurent dans [le guide d'équipe](docs/GUIDE_EQUIPE.md).
+Outil en ligne de commande qui lit des fichiers de logs JSON Lines, nettoie
+les événements, applique des règles de sécurité et affiche un bilan :
+activité par niveau et par utilisateur, IP en erreur, comparaison avec une
+blacklist et détection des attaques par force brute.
 
-Le [lien avec les cours](docs/LIEN_AVEC_LES_COURS.md) relie chaque notion aux
-supports fournis et aux modules du projet. La base privilégie les fonctions,
-les types simples et les étapes explicites, tout en conservant les notions
-imposées par l'énoncé.
+Les logs sont traités en flux, un événement à la fois : un fichier de 10 Go
+est analysé avec moins de 20 Mo de mémoire.
 
-## Répartition
+Projet ING3 en trinôme · Python 3.10 ou supérieur · bibliothèque standard
+uniquement.
 
-- P1 : lecture, parsing, CLI, environnement et génération du fichier de 10 Go.
-- P2 : nettoyage, pipeline fonctionnel, règles de sécurité et audit.
-- P3 : statistiques, détection de force brute et assemblage du rapport.
+## Démarrage rapide
 
-## Données communes
-
-`data/demo.jsonl` contient dix événements valides, une ligne JSON malformée et
-une ligne vide. `data/blacklist.txt` contient deux IP de test.
-
-Le fichier de 10 Go sera généré dans `data/generated/`, exclu de Git.
-Seuls le générateur, sa commande et les mesures doivent être partagés.
-
-## Installation sous PowerShell
+Sous PowerShell, depuis la racine du projet :
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-Le moteur démarre avec la bibliothèque standard de Python, sans dépendance
-externe. Chaque personne utilise son propre environnement virtuel.
-
-## Lancer le projet
-
-Depuis la racine du projet :
-
-```powershell
 .\.venv\Scripts\python.exe main.py data/demo.jsonl --blacklist data/blacklist.txt --threshold 3
-.\.venv\Scripts\python.exe main.py data/fichier1.jsonl data/fichier2.jsonl --threshold 3
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-`main.py` raccorde les fonctions des trois parties :
+`requirements.txt` est vide : `pip freeze` ne renvoie aucune dépendance, le
+projet n'utilise que la bibliothèque standard.
+
+Sans argument, `python main.py` utilise `data/demo.jsonl` et
+`data/blacklist.txt`.
+
+## Exemple de résultat
+
+Sur le jeu de démonstration (extrait du bilan JSON) :
 
 ```text
-read_sources(paths) -> build_pipeline(lines, parser=parse_line)
-                   -> apply_security_rules(...) -> analyze(...)
+WARNING : Ligne rejetée : JSON malformé (Expecting value) ; extrait='{"timestamp":\n'
+{
+  "total": 10,
+  "by_level": {"INFO": 4, "WARNING": 3, "ERROR": 2, "CRITICAL": 1},
+  "by_user": {"alice": 3, "bob": 5, "carol": 1, "service": 1},
+  "error_ips": ["192.168.1.10", "192.168.1.20", "192.168.1.66"],
+  "ip_sets": {"intersection": ["192.168.1.66"], "blacklist_only": ["192.168.1.99"], ...},
+  "alerts_by_type": {"blacklist": 1, "brute_force": 1},
+  "alert_samples": [
+    {"type": "brute_force", "user_id": "bob", "message": "3 échecs de connexion consécutifs", ...},
+    {"type": "blacklist", "user_id": "carol", "message": "IP présente dans la blacklist", ...}
+  ]
+}
+Audit : output\audit.json
+Événements valides : 10
 ```
 
-Sans argument, `python main.py` utilise le jeu de démonstration et la blacklist
-du dépôt. `python main.py --help` présente les options.
+La ligne JSON cassée est signalée sans arrêter la lecture ; la ligne vide est
+ignorée sans avertissement.
 
-Résultat sur le jeu de démonstration : **10 événements valides**, une alerte
-blacklist, une alerte de force brute, un avertissement pour le JSON cassé et
-aucun pour la ligne vide. Le bilan est affiché en JSON, les ensembles d'IP
-étant convertis en listes. Les fichiers sont parcourus dans l'ordre fourni,
-sans tri ni chargement global. La blacklist est chargée avant le parcours en
-`frozenset`. `--threshold` doit être un entier positif.
+## Fonctionnement
 
-L'audit des variables est écrit dans `output/audit.json` ; `--audit chemin.json`
-change sa destination. La règle CRITICAL facultative reste désactivée dans la
-chaîne complète.
+```text
+fichiers ──► lignes ──► dictionnaires ──► nettoyage ──► règles ──► analyse ──► bilan
+          read_sources    parse_line    build_pipeline  apply_     analyze
+              (P1)           (P1)            (P2)       security_   (P3)
+                                                        rules (P2)
+```
 
-Codes de sortie : 0 pour un parcours terminé, même avec des lignes rejetées ;
-1 pour une erreur de fichier ou d'encodage ; 2 pour une erreur d'arguments.
+Chaque étape renvoie un itérateur : un événement traverse toute la chaîne
+avant que la ligne suivante soit lue. Seuls des compteurs, des ensembles d'IP
+et 20 exemples d'alertes sont conservés.
 
-## Démonstration P2
+| Module | Rôle | Partie |
+|---|---|---|
+| `logengine/ingestion.py` | Lecture ligne par ligne d'un ou plusieurs fichiers | P1 |
+| `logengine/parsing.py` | Ligne JSON → dictionnaire typé, ou `None` si invalide | P1 |
+| `logengine/pipeline.py` | Filtrage, normalisation, reconnaissance des formats | P2 |
+| `logengine/rules.py` | Règles de sécurité et moteur qui les applique | P2 |
+| `logengine/audit.py` | Export des noms et types des variables d'une portée | P2 |
+| `logengine/analysis.py` | Compteurs, ensembles d'IP, bilan | P3 |
+| `logengine/detection.py` | Détection de force brute | P3 |
+| `main.py` | Point d'entrée en ligne de commande | commun |
+| `scripts/generate_logs.py` | Génération d'un gros fichier de test | P1 |
+
+## Correspondance avec l'énoncé
+
+| Exigence | Où la trouver |
+|---|---|
+| Générateur `yield` ligne par ligne | `ingestion.read_lines` |
+| `yield from` sur plusieurs fichiers | `ingestion.read_sources` |
+| Ligne parsée en dictionnaire, types variés | `parsing.parse_line` |
+| Tuple immuable `(IP, port, protocole)` | champ `connection`, créé par `parse_line` |
+| `filter()` + `lambda`, `filter(None, ...)` | `pipeline.build_pipeline` |
+| `map()` de normalisation, f-strings | `pipeline.normalize_record`, `normalize_records` |
+| `match-case` : chaîne brute, dictionnaire, tuple | `pipeline.route_value` |
+| `set` des IP en erreur | `analysis.analyze` (`error_ips`) |
+| `frozenset` et opérations `\|`, `&`, `-`, `^` | `main.load_blacklist`, `analysis.compare_with_blacklist` |
+| `defaultdict` pour les compteurs | `analysis.analyze`, `detection.BruteForceDetector` |
+| `while`, `for`, `break`, `continue`, `else` de boucle | `analysis.analyze`, `detection.BruteForceDetector.process` |
+| `apply_security_rules(*args, **kwargs)`, fonctions en argument | `rules.apply_security_rules` |
+| Audit avec `globals()` et `locals()` | `audit.export_audit`, appelé dans `main.py` |
+| Traitement sans charger le fichier en RAM | essai sur 10 Go, voir plus bas |
+
+Le lien entre ces notions et les supports de cours est détaillé dans
+[docs/LIEN_AVEC_LES_COURS.md](docs/LIEN_AVEC_LES_COURS.md).
+
+## Options de la commande
+
+```powershell
+.\.venv\Scripts\python.exe main.py [fichiers ...] [options]
+```
+
+| Option | Rôle | Défaut |
+|---|---|---|
+| `fichiers` | Un ou plusieurs fichiers JSONL, lus dans l'ordre donné | `data/demo.jsonl` |
+| `--blacklist` | Fichier contenant une IP par ligne | `data/blacklist.txt` |
+| `--threshold` | Échecs consécutifs déclenchant une alerte de force brute | `3` |
+| `--audit` | Destination de l'audit des variables | `output/audit.json` |
+| `--details` | Afficher la décision du parseur ligne par ligne, sans règles ni analyse | désactivé |
+| `--measure` | Afficher durée, débit et pic d'allocations Python (ralentit le parcours) | désactivé |
+| `--demo-p2` | Lancer la démonstration du pipeline et des règles, sans fichier | désactivé |
+
+Codes de sortie : `0` si le parcours est terminé, même avec des lignes
+rejetées ; `1` pour une erreur de fichier ou d'encodage ; `2` pour une erreur
+d'arguments.
+
+## Format des logs
+
+Un objet JSON par ligne, par exemple :
+
+```json
+{"timestamp":"2026-11-05T10:00:01","level":"WARNING","ip":"192.168.1.20","user_id":"bob","connection":["192.168.1.20",443,"HTTPS"],"payload":{"event":"login","status":"failure"}}
+```
+
+| Champ | Contenu | Type après parsing |
+|---|---|---|
+| `timestamp` | Date ISO de l'événement | `datetime` |
+| `level` | INFO, WARNING, ERROR ou CRITICAL | `str`, normalisé par P2 |
+| `ip` | Adresse IP source | `str` |
+| `user_id` | Identifiant utilisateur | `str` |
+| `connection` | IP, port, protocole | `tuple[str, int, str]` |
+| `payload` | Événement structuré ou message brut | `dict` ou `str` |
+
+Les six champs sont obligatoires. Une ligne mal formée, un champ manquant ou
+un mauvais type donnent un avertissement et la ligne est ignorée. Les espaces
+et minuscules du niveau (`" warning "`) sont corrigés par la normalisation ;
+un niveau inconnu est ensuite écarté.
+
+Une tentative de connexion est un payload `{"event": "login", "status":
+"success" | "failure"}`. La détection compte les échecs consécutifs par couple
+`(ip, user_id)` ; une connexion réussie remet le compteur à zéro.
+
+## Données de test
+
+| Fichier | Contenu |
+|---|---|
+| `data/demo.jsonl` | 10 événements valides, une ligne JSON cassée et une ligne vide |
+| `data/blacklist.txt` | 2 IP de test, dont une présente dans `demo.jsonl` |
+| `data/test_p1.jsonl` | 5 lignes pour le mode `--details` : 2 valides, 2 rejetées, 1 vide |
+| `data/logs_test_p1.jsonl` | 10 événements avec connexions SSH et payload texte |
+
+Toutes les données sont fictives.
+
+## Démonstrations
+
+Pipeline et règles P2 sur trois événements, avec une puis deux règles :
 
 ```powershell
 .\.venv\Scripts\python.exe main.py --demo-p2
 ```
 
-La démonstration traite trois dictionnaires manuels dans deux scénarios :
-la règle de blacklist seule (trois événements, une alerte), puis les règles
-blacklist et CRITICAL ensemble (trois événements, deux alertes). L'audit JSON
-est écrit dans `output/p2/audit.json`. Ce mode n'effectue pas la détection de
-force brute.
-
-Les modules P2 sont `logengine/pipeline.py`, `logengine/rules.py` et
-`logengine/audit.py`. Leur fonctionnement est expliqué dans
-[la partie P2 du rapport](docs/rapport_P2.md).
-
-## Diagnostic du parseur
-
-Le récapitulatif du travail P1 est disponible en
-[PDF (7 pages)](docs/ANALYSE_P1.pdf) et en
-[Markdown](docs/ANALYSE_P1.md).
-
-Pour visualiser chaque décision du parseur sur cinq lignes :
+Décision du parseur ligne par ligne :
 
 ```powershell
 .\.venv\Scripts\python.exe main.py data/test_p1.jsonl --details
 ```
 
 Résultat attendu : 5 lignes lues, 2 événements valides, 2 lignes rejetées et
-1 ligne vide ignorée. L'affichage indique le numéro de chaque ligne et la
-cause d'un rejet. La numérotation est globale et continue entre les fichiers.
-Ce mode n'applique ni les règles ni l'analyse. Le réserver aux petits
-fichiers : ne pas afficher des millions de résultats pendant l'essai volumineux.
+1 ligne vide ignorée.
 
-Les outils de bibliothèque standard répondent à des besoins précis : `json`
-décode le texte, `datetime` convertit la date, `argparse` récupère les arguments,
-`logging` signale les rejets du parseur, `unittest` automatise les vérifications.
-`Path` représente un chemin, les annotations décrivent les entrées/sorties et
-`tracemalloc` sert uniquement aux mesures optionnelles. Aucun paquet
-supplémentaire n'est nécessaire.
+## Essai sur 10 Go
 
-## Contrat P1 → P2
-
-`logengine.ingestion.read_lines(path)` et `read_sources(paths)` fournissent un
-`Iterator[str]`. P2 transmet ces lignes à son `build_pipeline`, qui appelle
-`logengine.parsing.parse_line(line)` et élimine les retours `None`.
-
-Le parseur retourne un dictionnaire avec les champs suivants :
-
-| Champ | Type Python après parsing P1 |
-|---|---|
-| `timestamp` | `datetime.datetime`, conversion ISO, sans ajout de fuseau |
-| `level` | `str`, conservée avant normalisation P2 |
-| `ip` | `str` |
-| `user_id` | `str` |
-| `connection` | `tuple[str, int, str]` |
-| `payload` | `dict` ou `str` |
-
-Les six champs sont obligatoires. Les champs supplémentaires sont conservés.
-Un mauvais type, une date invalide, une connexion incorrecte ou du JSON cassé
-donnent `None` avec un avertissement et un extrait limité à 160 caractères.
-Une ligne blanche donne `None` silencieusement. Un port booléen est rejeté.
-P1 ne valide pas la syntaxe des IP, les bornes des ports ou les protocoles ;
-il ne modifie pas les espaces ni la casse et laisse les niveaux inconnus à P2,
-qui normalise puis filtre. Un payload texte est accepté dans un événement JSON,
-pas comme ligne brute hors JSON. Le champ `alerts` est ajouté par P2.
-
-Les interfaces ne transportent pas le chemin et le numéro de ligne jusqu'au
-parseur : les avertissements contiennent une cause et un extrait seulement.
-L'aide `parse_line_details(line)` retourne `(dict ou None, explication)` pour
-le mode `--details`. L'interface `parse_line(line) -> dict | None` réutilise
-les mêmes contrôles.
-
-## Comprendre la lecture paresseuse
-
-Un fichier est un **itérable**, parcourable avec `for`. Un **itérateur** fournit
-la valeur suivante avec `next()`. Une fonction contenant `yield` crée un
-**générateur**, qui est un itérateur : `yield` fournit une ligne puis suspend
-la fonction jusqu'à la prochaine demande. `yield from` délègue ce parcours au
-lecteur de chaque fichier, successivement.
-
-L'appel à `read_lines` n'ouvre pas encore le fichier : l'ouverture se produit
-à la première consommation. Le bloc `with` ferme le fichier à l'épuisement ou
-à la fermeture du générateur.
-
-La mémoire dépend surtout de la plus grande ligne, du dictionnaire courant
-et des tampons de lecture. Aucun `read()` global, `readlines()` ou historique
-des logs n'est construit. Une ligne gigantesque reste une limite. Les compteurs
-et ensembles de l'analyse grandissent avec le nombre d'IP et d'utilisateurs
-distincts, pas avec le nombre de lignes.
-
-## Générer et mesurer un gros fichier
-
-Les 10 Go sont une exigence de l'équipe, pas une taille imposée par le PDF.
-La graine fixe rend les événements reproductibles ; la population reste bornée
-à 32 utilisateurs/IP. Les dates sont chronologiques. La taille inclut les
-octets UTF-8 et les sauts de ligne. La dernière ligne est complète : la cible
-peut être dépassée de moins d'une ligne. Un fichier existant n'est jamais écrasé.
-Une interruption ou un disque plein peut laisser un fichier partiel.
+Générer le fichier (environ 17 minutes, 10 Go d'espace disque libre requis),
+puis l'analyser :
 
 ```powershell
 .\.venv\Scripts\python.exe scripts/generate_logs.py --output data/generated/logs_10go.jsonl --size-gb 10 --seed 0
-.\.venv\Scripts\python.exe main.py data/generated/logs_10go.jsonl --measure
+.\.venv\Scripts\python.exe main.py data/generated/logs_10go.jsonl
 ```
 
-Pour débuter, utiliser `--size-gb 0.00001` et un autre chemin (environ 10 ko).
-Pour 15 Go, choisir `--size-gb 15` et un nouveau chemin. Les tailles sont
-décimales : 10 Go = 10 000 000 000 octets. Prévoir l'espace disque avant l'essai.
-`--measure` affiche durée, événements/s et pic d'allocations Python via
-`tracemalloc` ; ce dernier ralentit le parcours et ne mesure pas toute la RAM.
-Le fichier généré est ignoré par Git. Les mesures du parseur seul sont
-consignées dans [le bilan P1](docs/BILAN_P1.md).
+Pour un premier essai rapide, utiliser `--size-gb 0.01` (10 Mo). Le
+générateur refuse d'écraser un fichier existant. Le dossier
+`data/generated/` est ignoré par Git.
 
-`requirements.txt` reste vide : `.venv\Scripts\python.exe -m pip freeze` ne
-retourne aucune dépendance. Aucune installation supplémentaire n'est nécessaire.
+Résultats mesurés sur la chaîne complète :
 
-## Git
+| Mesure | Valeur |
+|---|---|
+| Taille du fichier | 10 000 000 021 octets |
+| Événements traités | 55 983 446 |
+| Durée | 1 164 s, soit environ 48 000 événements/s |
+| Pic de mémoire du processus | 19,5 Mo |
 
-Le dépôt commun est `https://github.com/enizah35/projet_pyth_logs`.
-Travailler sur une branche `feat/p1-...`, `feat/p2-...` ou `feat/p3-...`, puis
-faire relire une pull request vers `main`. Prévenir avant de modifier une
-interface ou un fichier appartenant à un autre membre.
+La mémoire reste stable car aucun événement n'est conservé. Elle grandirait
+seulement avec le nombre d'IP et d'utilisateurs distincts.
+
+## Tests
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+75 tests couvrent la lecture, le parsing, le pipeline, les règles, l'audit,
+l'analyse, la détection et le raccordement dans `main.py`.
+
+## Documentation
+
+- [Partie P2 du rapport](docs/rapport_P2.md) : pipeline, règles, audit et mesures.
+- [Analyse de P1](docs/ANALYSE_P1.md) ([PDF](docs/ANALYSE_P1.pdf)) et
+  [bilan de P1](docs/BILAN_P1.md) : lecture, parsing et génération.
+- [Lien avec les cours](docs/LIEN_AVEC_LES_COURS.md) : notions utilisées et
+  supports correspondants.
+- [Guide d'équipe](docs/GUIDE_EQUIPE.md) : contrat de données, répartition et
+  résultats de référence.
+
+## Équipe
+
+- **P1** : lecture, parsing, ligne de commande et génération des données.
+- **P2** : nettoyage, pipeline fonctionnel, règles de sécurité et audit.
+- **P3** : statistiques, détection de force brute et rapport.
+
+Dépôt : <https://github.com/enizah35/projet_pyth_logs>. Chaque partie est
+développée sur sa branche, puis fusionnée dans `main` par pull request.
