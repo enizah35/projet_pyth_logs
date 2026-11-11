@@ -39,10 +39,10 @@ externe. Chaque personne utilise son propre environnement virtuel.
 .\.venv\Scripts\python.exe -m examples.demo_p2
 ```
 
-La démonstration traite trois dictionnaires manuels : nettoyage, normalisation,
-règle de blacklist et audit JSON dans `output/p2/audit.json`. Résultat attendu :
-trois événements conservés et une alerte blacklist. La règle CRITICAL est
-facultative et désactivée dans cette démonstration.
+La démonstration traite trois dictionnaires manuels dans deux scénarios :
+la règle de blacklist seule (trois événements, une alerte), puis les règles
+blacklist et CRITICAL ensemble (trois événements, deux alertes). L'audit JSON
+est écrit dans `output/p2/audit.json`.
 
 Les modules P2 sont `logengine/pipeline.py`, `logengine/rules.py` et
 `logengine/audit.py`.
