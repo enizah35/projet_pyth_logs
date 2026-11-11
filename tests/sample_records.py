@@ -1,3 +1,5 @@
+"""Outils de test P3 : événements et blacklist de référence."""
+
 from datetime import datetime
 
 BLACKLIST = frozenset({"192.168.1.99", "192.168.1.66"})

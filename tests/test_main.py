@@ -1,4 +1,4 @@
-"""Vérifier le raccordement des trois parties dans main."""
+"""Tests du point d'entrée : raccordement des trois parties."""
 
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO

@@ -1,4 +1,4 @@
-"""Audit de la portée choisie, sans export de valeurs ni lecture des flux."""
+"""Tests P2 : audit des portées."""
 
 import json
 from pathlib import Path

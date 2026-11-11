@@ -1,4 +1,4 @@
-"""Règles configurables, conservation des événements et format des alertes."""
+"""Tests P2 : règles de sécurité et moteur."""
 
 import unittest
 

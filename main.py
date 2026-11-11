@@ -1,9 +1,7 @@
-"""Point d'entrée commun : lecture P1 -> nettoyage/règles P2 -> analyse P3.
+"""Point d'entrée : lecture (P1), nettoyage et règles (P2), analyse (P3).
 
-Trois modes :
-- par défaut : chaîne complète, bilan JSON et audit des variables ;
-- --details  : diagnostic P1, résultat du parseur ligne par ligne ;
-- --demo-p2  : exemple P2 sur trois dictionnaires, sans fichier.
+Modes : chaîne complète par défaut, --details pour le diagnostic du
+parseur, --demo-p2 pour l'exemple P2 sans fichier.
 """
 
 import argparse
@@ -26,7 +24,7 @@ PROJECT_DIR = Path(__file__).resolve().parent
 
 
 def positive_int(value: str) -> int:
-    """Valider le seuil avant de commencer la lecture des fichiers."""
+    """Convertir le seuil en entier strictement positif."""
     try:
         number = int(value)
     except ValueError:
@@ -72,47 +70,47 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    """Lire les arguments ; argv=None utilise ceux du terminal."""
+    """Lire les arguments (ceux du terminal si argv vaut None)."""
     return build_parser().parse_args(argv)
 
 
 def load_blacklist(path: str | Path) -> frozenset[str]:
-    """Charger la petite liste d'IP, en ignorant les lignes vides."""
+    """Charger les IP de la blacklist, une par ligne."""
     addresses = set()
     with open(path, "r", encoding="utf-8") as source:
         for line in source:
             address = line.strip()
             if address:
                 addresses.add(address)
-    # Le frozenset empêche de modifier la blacklist pendant le traitement.
+    # frozenset : la blacklist ne peut plus être modifiée
     return frozenset(addresses)
 
 
 def run_project(
     paths: list[Path], blacklist: frozenset[str], threshold: int
 ) -> dict:
-    """Raccorder les modules de l'équipe et consommer le flux une fois."""
-    # Chaque étape produit un itérateur : aucun fichier complet en liste.
-    lines = read_sources(paths)                           # P1
-    records = build_pipeline(lines, parser=parse_line)    # P1 + P2
-    checked = apply_security_rules(                       # P2
+    """Enchaîner les trois parties et renvoyer le bilan.
+
+    Chaque étape est un itérateur : le flux est parcouru une seule fois.
+    """
+    lines = read_sources(paths)
+    records = build_pipeline(lines, parser=parse_line)
+    checked = apply_security_rules(
         rule_blacklist, records=records, blacklist=blacklist
     )
-    # analyze consomme le flux ; on ne peut pas le parcourir une seconde fois.
-    return analyze(checked, blacklist=blacklist, threshold=threshold)  # P3
+    return analyze(checked, blacklist=blacklist, threshold=threshold)
 
 
 def show_details(paths: list[Path]) -> int:
-    """Diagnostic P1 : afficher ce que le parseur décide pour chaque ligne.
+    """Afficher la décision du parseur pour chaque ligne.
 
-    Retourne le nombre d'événements valides. Seuls des compteurs sont
-    conservés, jamais les événements.
+    Renvoie le nombre d'événements valides.
     """
     total = 0
     rejected = 0
     empty = 0
     line_count = 0
-    # Le numéro de ligne continue d'un fichier au suivant.
+    # La numérotation continue d'un fichier au suivant
     for line_count, line in enumerate(read_sources(paths), start=1):
         if not line.strip():
             empty += 1
@@ -135,7 +133,7 @@ def show_details(paths: list[Path]) -> int:
 
 
 def json_value(value: object) -> object:
-    """Convertir les ensembles d'IP et les dates pour l'affichage JSON."""
+    """Convertir ensembles et dates pour json.dumps."""
     if isinstance(value, (set, frozenset)):
         return sorted(value)
     if isinstance(value, datetime):
@@ -182,8 +180,7 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(
                 summary, ensure_ascii=False, indent=2, default=json_value
             ))
-            # globals() et locals() sont appelés ici : l'audit décrit les
-            # variables de main.py, pas celles du module audit.
+            # Appelés ici pour auditer la portée de main
             export_audit(args.audit, globals(), locals())
             print(f"Audit : {args.audit}")
             print(f"Événements valides : {total}")

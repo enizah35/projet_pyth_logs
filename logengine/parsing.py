@@ -1,4 +1,7 @@
-"""Contrat P1 : dictionnaire typé, sans normalisation métier P2."""
+"""P1 : transformation d'une ligne JSON en dictionnaire typé.
+
+Les valeurs ne sont pas normalisées : c'est le rôle de P2.
+"""
 
 import json
 import logging
@@ -11,12 +14,9 @@ REQUIRED_FIELDS = (
 
 
 def parse_line_details(line: str) -> tuple[dict | None, str]:
-    """Retourner (événement ou None, explication), pour visualiser les tests.
+    """Renvoyer (événement ou None, cause), pour le mode --details.
 
-    Les champs supplémentaires sont conservés. Les niveaux et protocoles
-    restent tels quels : leur normalisation appartient au pipeline P2.
-    Cette fonction effectue les contrôles une seule fois ; parse_line la
-    réutilise pour conserver exactement l'interface convenue avec P2.
+    Les champs supplémentaires sont conservés.
     """
     if not line.strip():
         return None, "ligne vide ignorée"
@@ -37,7 +37,7 @@ def parse_line_details(line: str) -> tuple[dict | None, str]:
         isinstance(connection, list)
         and len(connection) == 3
         and isinstance(connection[0], str)
-        # bool hérite de int : isinstance(True, int) serait insuffisant.
+        # bool hérite de int : type() écarte True et False
         and type(connection[1]) is int
         and isinstance(connection[2], str)
     ):
@@ -55,10 +55,9 @@ def parse_line_details(line: str) -> tuple[dict | None, str]:
 
 
 def parse_line(line: str) -> dict | None:
-    """Contrat P2 : retourner dict ou None, en signalant les vrais rejets.
+    """Renvoyer l'événement ou None, et signaler les lignes rejetées.
 
-    Une ligne blanche n'est pas une erreur. Le résultat détaillé reste une
-    aide pour la CLI P1 ; P2 continue à appeler cette fonction uniquement.
+    Une ligne vide est ignorée sans avertissement.
     """
     record, reason = parse_line_details(line)
     if record is None and line.strip():

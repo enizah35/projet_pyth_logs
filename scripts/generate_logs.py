@@ -1,4 +1,7 @@
-"""Écriture reproductible de JSONL, sans liste de tous les événements."""
+"""P1 : génération d'un gros fichier de logs JSONL reproductible.
+
+Les événements sont écrits un par un, sans liste en mémoire.
+"""
 
 import argparse
 from collections.abc import Iterator, Sequence
@@ -11,7 +14,7 @@ import time
 
 
 def generate_records(seed: int = 0) -> Iterator[dict]:
-    """Produire des dates croissantes, sur 32 utilisateurs/IP fixes."""
+    """Produire sans fin des événements datés, pour 32 utilisateurs fixes."""
     rng = random.Random(seed)
     timestamp = datetime(2026, 11, 5)
     while True:
@@ -33,16 +36,16 @@ def generate_records(seed: int = 0) -> Iterator[dict]:
 
 
 def write_logs(output: str | Path, target_bytes: int, seed: int = 0) -> int:
-    """Retourner les octets écrits ; refuser tout écrasement existant.
+    """Écrire au moins target_bytes octets et renvoyer la taille écrite.
 
-    Un fichier partiel reste sur disque si l'écriture est interrompue.
-    La dernière ligne complète peut dépasser légèrement la cible.
+    Refuse d'écraser un fichier ; la dernière ligne reste complète.
     """
     if type(target_bytes) is not int or target_bytes <= 0:
         raise ValueError("target_bytes doit être un entier positif")
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     written = 0
+    # "x" : échec si le fichier existe déjà
     with output.open("xb") as destination:
         for record in generate_records(seed):
             text = json.dumps(
@@ -56,7 +59,7 @@ def write_logs(output: str | Path, target_bytes: int, seed: int = 0) -> int:
 
 
 def size_in_bytes(value: str) -> int:
-    """Convertir des Go décimaux sans arrondir la cible vers le bas."""
+    """Convertir une taille en Go décimaux en octets, arrondie au-dessus."""
     try:
         size = Decimal(value)
         if not size.is_finite() or size <= 0:
@@ -70,6 +73,7 @@ def size_in_bytes(value: str) -> int:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """Lire les arguments, écrire le fichier et afficher sa taille."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--size-gb", type=size_in_bytes, required=True)

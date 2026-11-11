@@ -1,4 +1,4 @@
-"""Tests du contrat P1 ; aucune dépendance envers les modules des équipiers."""
+"""Tests P1 : lecture, parsing, générateur et mode --details."""
 
 import argparse
 from contextlib import redirect_stdout

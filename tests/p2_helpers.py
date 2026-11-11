@@ -1,4 +1,4 @@
-"""Données minimales des tests P2, indépendantes des modules P1 et P3."""
+"""Outils de test P2 : événement minimal au format du parseur."""
 
 from datetime import datetime
 

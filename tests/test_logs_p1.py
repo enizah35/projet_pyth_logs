@@ -1,4 +1,4 @@
-"""Faire passer le fichier de logs fourni par P1 dans la chaîne P2."""
+"""Tests P2 : pipeline sur le fichier de logs de P1."""
 
 from datetime import datetime
 import json

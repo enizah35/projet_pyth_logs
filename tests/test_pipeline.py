@@ -1,4 +1,4 @@
-"""Comportements de normalisation, routage et traitement à la demande."""
+"""Tests P2 : normalisation, match-case et traitement à la demande."""
 
 from copy import deepcopy
 import unittest

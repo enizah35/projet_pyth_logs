@@ -1,4 +1,7 @@
-"""Démonstration P2 sur dictionnaires manuels : python -m examples.demo_p2."""
+"""P2 : démonstration du pipeline et des règles sur trois événements.
+
+Lancement : python main.py --demo-p2
+"""
 
 from collections.abc import Callable
 from datetime import datetime
@@ -14,7 +17,7 @@ from logengine.rules import (
 
 
 def sample_records() -> tuple[dict, ...]:
-    """Petit exemple P2 ; le lecteur et le parseur de fichiers restent à P1."""
+    """Renvoyer trois événements au format du parseur de P1."""
     return (
         {
             "timestamp": datetime(2026, 11, 5, 10, 0, 1),
@@ -44,14 +47,10 @@ def sample_records() -> tuple[dict, ...]:
 
 
 def run_scenario(title: str, *rules: Callable[..., dict | None]) -> None:
-    """Lancer la chaîne P2 avec les règles reçues et afficher le résultat.
-
-    Les règles sont des fonctions passées en arguments : on change de
-    scénario sans modifier le moteur.
-    """
+    """Traiter les événements avec les règles reçues et afficher le bilan."""
     blacklist = frozenset({"192.168.1.66", "192.168.1.99"})
     records = normalize_records(sample_records())
-    # *rules redonne les fonctions une par une au moteur.
+    # *rules transmet les fonctions reçues une par une
     checked = apply_security_rules(
         *rules, records=records, blacklist=blacklist
     )
@@ -70,13 +69,12 @@ def run_scenario(title: str, *rules: Callable[..., dict | None]) -> None:
 
 
 def main() -> None:
-    """Deux scénarios sur les mêmes événements, puis l'audit."""
-    # Scénario de référence : une seule règle.
+    """Lancer deux scénarios de règles, puis exporter l'audit."""
     run_scenario("Règle blacklist seule", rule_blacklist)
-    # Même moteur, une règle de plus : carol déclenche deux alertes.
+    # Une règle de plus, sans modifier le moteur
     run_scenario("Règles blacklist et critical", rule_blacklist, rule_critical)
 
-    # Dossier du projet : le parent du dossier examples/.
+    # Dossier parent de examples/
     project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     audit_path = os.path.join(project_dir, "output", "p2", "audit.json")
     export_audit(audit_path, globals(), locals())
