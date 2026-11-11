@@ -45,8 +45,7 @@ trois événements conservés et une alerte blacklist. La règle CRITICAL est
 facultative et désactivée dans cette démonstration.
 
 Les modules P2 sont `logengine/pipeline.py`, `logengine/rules.py` et
-`logengine/audit.py`. [Le démarrage P2](docs/DEMARRAGE_P2.md) explique l'ordre
-de lecture, les vérifications et le raccordement aux autres modules.
+`logengine/audit.py`.
 
 ## Point d'entrée commun
 
