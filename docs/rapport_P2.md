@@ -177,7 +177,41 @@ Chaîne complète sur le jeu commun (`python main.py data/demo.jsonl`) :
 10 événements valides, 1 alerte blacklist et 1 alerte de force brute, ce qui
 correspond aux résultats de référence du guide d'équipe.
 
-## 7. Limites
+## 7. Essai sur un fichier de 10 Go
+
+Le fichier est produit par le générateur de P1, puis traité par la chaîne
+complète (P1, P2 et P3), règle blacklist active et seuil de 3 :
+
+```powershell
+.\.venv\Scripts\python.exe scripts/generate_logs.py --output data/generated/logs_10go.jsonl --size-gb 10 --seed 0
+.\.venv\Scripts\python.exe main.py data/generated/logs_10go.jsonl --blacklist data/blacklist.txt --threshold 3
+```
+
+Mesures du 11 novembre 2026, sous Windows, Python 3.14 :
+
+| Mesure | Valeur |
+|---|---|
+| Taille du fichier | 10 000 000 021 octets |
+| Génération | 1 017 s |
+| Événements traités | 55 983 446 |
+| Durée de la chaîne complète | 1 164 s, soit environ 48 000 événements/s |
+| Pic de mémoire du processus | 19,5 Mo |
+| Lignes rejetées | 0 |
+| Alertes de force brute | 2 623 123, dont 20 conservées en exemple |
+| Alertes blacklist | 0 |
+
+La mémoire a été relevée sur le processus Python lui-même (working set
+Windows), sans `--measure`, pour ne pas ralentir le parcours. Elle reste à
+19,5 Mo pour un fichier de 10 Go : les événements et les alertes ne sont pas
+accumulés.
+
+Le générateur utilise 32 utilisateurs et les IP `192.168.1.1` à `.32`. Aucune
+ne figure dans la blacklist de test (`.66` et `.99`), d'où l'absence d'alerte
+blacklist. Le nombre d'alertes de force brute est élevé car les échecs de
+connexion sont tirés au hasard. Avec seulement 32 couples `(ip, user_id)`, les
+compteurs et ensembles de P3 restent petits.
+
+## 8. Limites
 
 - Le pipeline ne valide pas la syntaxe des IP : il nettoie seulement les
   espaces. Cette vérification n'est pas demandée par le contrat.
