@@ -1,0 +1,438 @@
+%PDF-1.4
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 7 /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R] >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 4313 >>
+stream
+0.12 0.29 0.43 rg BT /F2 22 Tf 1 0 0 1 50 748 Tm (Analyse du livrable P1) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 711 Tm (Référentiel de travail construit ensemble — projet ECE, module 1.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 682 Tm (1. Le but du projet) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 653 Tm (Traiter un grand volume de logs pour obtenir des informations sur l'activité et la) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 639 Tm (sécurité d'un système. Un log est la trace d'un événement : connexion réussie, échec de) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 625 Tm (connexion, requête ou erreur de service.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 606 Tm (P1 lit, parse et valide les événements. P2 les nettoie, les normalise et applique les) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 592 Tm (règles de sécurité. P3 calcule les statistiques et détecte les attaques. Le programme) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 578 Tm (affiche ensuite le bilan.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 559 Tm (Ton rôle peut se formuler ainsi : P1 lit les logs progressivement, transforme chaque) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 545 Tm (ligne valide en un dictionnaire conforme au contrat et permet à P2 de les traiter sans) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 531 Tm (charger tout le fichier en mémoire.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 502 Tm (2. Un log dans notre programme) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 473 Tm (L'équipe a choisi JSON Lines \(JSONL\) : chaque ligne contient un objet JSON représentant) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 459 Tm (un événement, sans tableau englobant.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 440 Tm (Exemple simplifié :) Tj ET
+0.95 0.96 0.98 rg 50 413 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 416 Tm ({"level":"ERROR","user_id":"alice"}) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 392 Tm (Avant parsing, la ligne est une chaîne Python \(str\) contenant du texte au format JSON.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 378 Tm (Après parsing, l'événement est un dictionnaire \(dict\). Une ligne valide correspond à un) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 364 Tm (événement, donc à un dictionnaire.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 345 Tm (Pour 50 millions de logs valides, P1 fournit 50 millions de dictionnaires) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 331 Tm (successivement. Il ne les conserve pas tous ensemble.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 302 Tm (3. Pourquoi un dictionnaire ?) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 273 Tm (La lecture récupère le texte. Le parsing interprète sa structure pour accéder aux) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 259 Tm (informations par leur nom.) Tj ET
+0.95 0.96 0.98 rg 50 232 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 235 Tm (evenement["level"]    # "ERROR") Tj ET
+0.95 0.96 0.98 rg 50 218 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 221 Tm (evenement["user_id"]  # "alice") Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 197 Tm (P2 et P3 travaillent ainsi sur des champs identifiés au lieu de rechercher les) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 183 Tm (informations dans du texte. Le dictionnaire organise les données ; il ne réduit pas à) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 169 Tm (lui seul leur consommation mémoire.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 140 Tm (4. La contrainte mémoire) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 111 Tm (Les chaînes, listes et dictionnaires sont stockés en RAM. Conserver tous les événements) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 97 Tm (dans une liste peut saturer cette mémoire.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 78 Tm (Le traitement progressif suit ce chemin : lire une ligne, la transformer en) Tj ET
+0.25 0.39 0.53 rg BT /F2 8 Tf 1 0 0 1 50 807 Tm (ECE | MODULE 1 | ANALYSE DU BESOIN) Tj ET
+0.75 0.81 0.87 RG 0.6 w 50 794 m 545 794 l S
+0.12 0.16 0.22 rg BT /F1 8 Tf 1 0 0 1 50 30 Tm (Referentiel pedagogique - 11 novembre 2026) Tj ET
+0.12 0.16 0.22 rg BT /F2 8 Tf 1 0 0 1 530 30 Tm (1) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 5230 >>
+stream
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 770 Tm (dictionnaire, traiter cet événement dans la chaîne, puis passer à la suivante. Le) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 756 Tm (fichier original reste sur disque. Les objets nécessaires au traitement courant sont en) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 742 Tm (RAM.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 723 Tm (Quand plus aucun module ne conserve de référence à un événement, Python peut libérer sa) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 709 Tm (mémoire. Pour P1, la mémoire dépend surtout de la plus grande ligne et des tampons de) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 695 Tm (lecture. Une ligne gigantesque reste donc une limite.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 676 Tm (P3 ne stocke pas tous les événements pour les compter :) Tj ET
+0.95 0.96 0.98 rg 50 649 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 652 Tm (Départ                  : erreurs = 0) Tj ET
+0.95 0.96 0.98 rg 50 635 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 638 Tm (Premier événement ERROR  : erreurs = 1) Tj ET
+0.95 0.96 0.98 rg 50 621 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 624 Tm (Deuxième événement ERROR : erreurs = 2) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 600 Tm (Un compteur atteignant plusieurs millions prend beaucoup moins de mémoire que les) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 586 Tm (millions de dictionnaires correspondants. P3 conserve aussi des IP distinctes et des) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 572 Tm (états de détection : ces structures peuvent croître avec le nombre d'IP ou) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 558 Tm (d'utilisateurs différents.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 529 Tm (5. Lire un fichier : read_lines\(\)) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 500 Tm (- Entrée : le chemin du fichier.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 486 Tm (- Travail : ouvrir le fichier et parcourir ses lignes.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 472 Tm (- Sortie progressive : une ligne de texte à chaque demande.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 458 Tm (- Fin : fermer le fichier.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 444 Tm (- Hors de son rôle : parsing et règles de sécurité.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 425 Tm (Notions associées :) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 406 Tm (- def : regrouper le comportement dans une fonction.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 392 Tm (- Paramètre : recevoir le chemin pour réutiliser la fonction.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 378 Tm (- open\(\) : ouvrir le fichier en lecture.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 364 Tm (- for : parcourir les lignes successivement.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 350 Tm (- yield : fournir une ligne et suspendre la fonction.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 336 Tm (- with open\(...\) : organiser la fermeture du fichier, même en cas d'erreur.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 317 Tm (Avec un générateur suspendu sur yield, le fichier reste ouvert. Il est fermé à) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 303 Tm (l'épuisement ou à la fermeture explicite du générateur. Si un consommateur arrête le) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 289 Tm (parcours tôt, il doit fermer le générateur.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 260 Tm (6. yield, générateurs et lecture paresseuse) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 231 Tm (Une fonction contenant yield est une fonction génératrice. Son appel crée un générateur) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 217 Tm (; son corps commence à s'exécuter lorsqu'on lui demande une valeur.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 198 Tm (yield fournit une valeur, suspend la fonction et permet de reprendre à la demande) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 184 Tm (suivante. Il ne surveille pas la fin du traitement d'un événement : c'est la prochaine) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 170 Tm (demande qui provoque la reprise.) Tj ET
+0.95 0.96 0.98 rg 50 143 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 146 Tm (P2 demande une ligne) Tj ET
+0.95 0.96 0.98 rg 50 129 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 132 Tm (P1 avance jusqu'à yield et fournit la ligne) Tj ET
+0.95 0.96 0.98 rg 50 115 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 118 Tm (P1 reste suspendu pendant le traitement suivant) Tj ET
+0.95 0.96 0.98 rg 50 101 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 104 Tm (P2 demande la prochaine ligne) Tj ET
+0.95 0.96 0.98 rg 50 87 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 90 Tm (P1 reprend après yield) Tj ET
+0.25 0.39 0.53 rg BT /F2 8 Tf 1 0 0 1 50 807 Tm (ECE | MODULE 1 | ANALYSE DU BESOIN) Tj ET
+0.75 0.81 0.87 RG 0.6 w 50 794 m 545 794 l S
+0.12 0.16 0.22 rg BT /F1 8 Tf 1 0 0 1 50 30 Tm (Referentiel pedagogique - 11 novembre 2026) Tj ET
+0.12 0.16 0.22 rg BT /F2 8 Tf 1 0 0 1 530 30 Tm (2) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 11 0 R >>
+endobj
+11 0 obj
+<< /Length 5229 >>
+stream
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 770 Tm (Une lecture paresseuse produit les valeurs à mesure qu'elles sont demandées. Un) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 756 Tm (générateur épuisé ne recommence pas : pour relire, on crée un nouveau lecteur.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 737 Tm (Iterator[str] signifie : un itérateur qui fournit des chaînes de caractères. C'est une) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 723 Tm (annotation de contrat, pas une liste ni une validation automatique des types.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 704 Tm (Différence importante : yield fournit une valeur et suspend ; return termine l'appel) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 690 Tm (d'une fonction. Le lecteur utilise yield pour plusieurs lignes. Le parseur utilise) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 676 Tm (return parce qu'il traite une seule ligne par appel.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 647 Tm (7. Lire plusieurs fichiers : read_sources\(\)) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 618 Tm (Cette fonction reçoit plusieurs chemins et réutilise read_lines\(\) pour chaque fichier,) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 604 Tm (dans l'ordre fourni. Elle lit A entièrement, puis B. Aucun tri global n'est prévu.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 585 Tm (Sa sortie reste une ligne de texte à la fois. Le parseur n'a pas besoin de savoir si le) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 571 Tm (flux vient d'un ou de plusieurs fichiers.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 552 Tm (- for parcourt les chemins.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 538 Tm (- read_lines\(\) fournit les lignes du fichier courant.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 524 Tm (- yield from transmet les valeurs de cet autre générateur.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 505 Tm (Un fichier vide ne fournit aucune valeur : le parseur n'est pas appelé et le lecteur) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 491 Tm (multisource passe au fichier suivant. Si A est vide et B contient trois événements) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 477 Tm (valides, trois événements sont traités.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 458 Tm (Attention : notre fonction read_lines\(\) est différente de la méthode readlines\(\), qui) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 444 Tm (rassemble toutes les lignes dans une liste et ne convient pas au chargement d'un fichier) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 430 Tm (de 10 Go.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 401 Tm (8. Fournir les chemins dans la commande) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 372 Tm (Décision prise : les chemins ne sont pas écrits directement dans main.py. Ils sont) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 358 Tm (fournis par l'utilisateur au lancement :) Tj ET
+0.95 0.96 0.98 rg 50 331 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 334 Tm (.\\.venv\\Scripts\\python.exe main.py A.jsonl B.jsonl) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 310 Tm (main.py récupère les chemins puis les transmet au lecteur multisource. Lire d'autres) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 296 Tm (fichiers demande de changer la commande, pas le code du lecteur. Le mécanisme de) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 282 Tm (récupération des arguments devra être expliqué avant utilisation.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 253 Tm (9. Parser et valider : parse_line\(\)) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 224 Tm (- Entrée : une chaîne contenant une ligne JSON.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 210 Tm (- Si la ligne est conforme : retourner le dictionnaire de l'événement.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 196 Tm (- Si la ligne est invalide : signaler la cause et retourner None.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 182 Tm (- Si la ligne est vide : retourner None sans avertissement d'erreur.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 163 Tm (None signifie : aucun événement valide à transmettre. On ne retourne pas un dictionnaire) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 149 Tm (vide pour représenter un rejet.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 130 Tm (Deux étapes sont distinctes : décoder le JSON, puis valider la structure obtenue. Du) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 116 Tm (JSON valide peut représenter autre chose qu'un dictionnaire : il faut donc vérifier que) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 102 Tm (la racine est bien un objet JSON devenu un dict.) Tj ET
+0.95 0.96 0.98 rg 50 75 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 78 Tm ({"level":       -> JSON incomplet, décodage impossible) Tj ET
+0.25 0.39 0.53 rg BT /F2 8 Tf 1 0 0 1 50 807 Tm (ECE | MODULE 1 | ANALYSE DU BESOIN) Tj ET
+0.75 0.81 0.87 RG 0.6 w 50 794 m 545 794 l S
+0.12 0.16 0.22 rg BT /F1 8 Tf 1 0 0 1 50 30 Tm (Referentiel pedagogique - 11 novembre 2026) Tj ET
+0.12 0.16 0.22 rg BT /F2 8 Tf 1 0 0 1 530 30 Tm (3) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 13 0 R >>
+endobj
+13 0 obj
+<< /Length 4703 >>
+stream
+0.95 0.96 0.98 rg 50 767 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 770 Tm ({"level": ""}   -> JSON valide, chaîne vide à examiner ensuite) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 736 Tm (10. Le contrat des six champs) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 707 Tm (Ces champs sont obligatoires selon le guide d'équipe :) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 688 Tm (- timestamp : date et heure, converties en datetime.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 674 Tm (- level : chaîne str, conservée avant normalisation P2.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 660 Tm (- ip : chaîne str représentant l'IP source.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 646 Tm (- user_id : chaîne str représentant l'utilisateur.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 632 Tm (- connection : tuple \(IP str, port int, protocole str\).) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 618 Tm (- payload : contenu sous forme de dict ou str.) Tj ET
+0.12 0.29 0.43 rg BT /F2 11.5 Tf 1 0 0 1 50 589 Tm (Présence des champs) Tj ET
+0.95 0.96 0.98 rg 50 554.5 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 557.5 Tm ("timestamp" in evenement) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 533.5 Tm (in teste la présence d'une clé et retourne True ou False. Présence et validité sont deux) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 519.5 Tm (contrôles différents. Si un champ obligatoire manque, P1 rejette sans inventer sa) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 505.5 Tm (valeur.) Tj ET
+0.12 0.29 0.43 rg BT /F2 11.5 Tf 1 0 0 1 50 476.5 Tm (timestamp) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 450.0 Tm (La chaîne 2026-11-05T10:00:00 représente le 5 novembre 2026 à 10 h. Le T sépare date et) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 436.0 Tm (heure.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 417.0 Tm (P1 vérifie la présence du champ, son type str et la possibilité de le convertir en) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 403.0 Tm (datetime. Avec "bonjour", le champ existe mais la conversion est impossible :) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 389.0 Tm (l'événement est rejeté.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 370.0 Tm (On vérifie que la date est exploitable, pas qu'elle correspond réellement à ce qui s'est) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 356.0 Tm (passé. Aucun fuseau n'est inventé.) Tj ET
+0.12 0.29 0.43 rg BT /F2 11.5 Tf 1 0 0 1 50 327.0 Tm (connection) Tj ET
+0.95 0.96 0.98 rg 50 292.5 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 295.5 Tm (["192.168.1.10", 443, "HTTPS"]  # liste issue du JSON) Tj ET
+0.95 0.96 0.98 rg 50 278.5 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 281.5 Tm (\("192.168.1.10", 443, "HTTPS"\)  # tuple après P1) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 257.5 Tm (Un tuple est immuable : on peut lire ses éléments, mais pas les remplacer directement.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 243.5 Tm (P1 vérifie trois éléments, leurs types str/int/str, puis convertit avec tuple\(\).) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 224.5 Tm (len\(\) vérifie le nombre d'éléments ; isinstance\(\) vérifie les types :) Tj ET
+0.95 0.96 0.98 rg 50 197.5 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 200.5 Tm (len\(["192.168.1.10", 443, "HTTPS"]\)  # 3) Tj ET
+0.95 0.96 0.98 rg 50 183.5 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 186.5 Tm (isinstance\(443, int\)                # True) Tj ET
+0.95 0.96 0.98 rg 50 169.5 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 172.5 Tm (isinstance\("443", int\)              # False) Tj ET
+0.95 0.96 0.98 rg 50 155.5 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 158.5 Tm (isinstance\("HTTPS", str\)            # True) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 134.5 Tm (La chaîne "443" n'est pas un entier. La politique retenue exige un port déjà entier,) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 120.5 Tm (sans conversion automatique. Un booléen est aussi rejeté comme port : bool hérite de int) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 106.5 Tm (en Python, ce qui impose une attention particulière au contrôle.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 87.5 Tm (Si le protocole manque, on rejette l'événement sans l'inventer.) Tj ET
+0.25 0.39 0.53 rg BT /F2 8 Tf 1 0 0 1 50 807 Tm (ECE | MODULE 1 | ANALYSE DU BESOIN) Tj ET
+0.75 0.81 0.87 RG 0.6 w 50 794 m 545 794 l S
+0.12 0.16 0.22 rg BT /F1 8 Tf 1 0 0 1 50 30 Tm (Referentiel pedagogique - 11 novembre 2026) Tj ET
+0.12 0.16 0.22 rg BT /F2 8 Tf 1 0 0 1 530 30 Tm (4) Tj ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 15 0 R >>
+endobj
+15 0 obj
+<< /Length 5027 >>
+stream
+0.12 0.29 0.43 rg BT /F2 11.5 Tf 1 0 0 1 50 760 Tm (payload) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 733.5 Tm (payload désigne le contenu de l'événement, pas son acceptation :) Tj ET
+0.95 0.96 0.98 rg 50 706.5 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 709.5 Tm ({"event": "login", "status": "success"}  # dict) Tj ET
+0.95 0.96 0.98 rg 50 692.5 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 695.5 Tm ("Service unavailable"                    # str) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 671.5 Tm (Les deux formes sont autorisées. La condition étudiée est :) Tj ET
+0.95 0.96 0.98 rg 50 644.5 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 647.5 Tm (isinstance\(payload, dict\) or isinstance\(payload, str\)) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 623.5 Tm (or signifie qu'au moins un test doit être vrai. Le nombre 42 ne respecte aucun des deux) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 609.5 Tm (types : rejet. Un payload correct ne suffit pas si un autre champ obligatoire manque.) Tj ET
+0.12 0.29 0.43 rg BT /F2 11.5 Tf 1 0 0 1 50 580.5 Tm (Frontière avec P2) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 554.0 Tm (P1 prépare les types ; P2 normalise notamment les niveaux et protocoles. P1 préserve) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 540.0 Tm (donc " warning ", que P2 pourra transformer en "WARNING". Les niveaux inconnus sont) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 526.0 Tm (filtrés par P2 après normalisation.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 507.0 Tm (Les champs supplémentaires sont conservés. La validation métier des IP, les bornes des) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 493.0 Tm (ports et les protocoles autorisés ne sont pas définis : ne pas inventer de restrictions.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 464.0 Tm (11. Transmettre les données à P2) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 435.0 Tm (Le guide prévoit que build_pipeline\(\) de P2 reçoive les lignes, appelle parse_line\(\) de) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 421.0 Tm (P1 puis écarte les retours None :) Tj ET
+0.95 0.96 0.98 rg 50 394.0 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 397.0 Tm (read_sources\(\) fournit une ligne) Tj ET
+0.95 0.96 0.98 rg 50 380.0 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 383.0 Tm (P2 appelle parse_line\(ligne\)) Tj ET
+0.95 0.96 0.98 rg 50 366.0 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 369.0 Tm (Le parseur retourne dict ou None à P2) Tj ET
+0.95 0.96 0.98 rg 50 352.0 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 355.0 Tm (P2 traite le dictionnaire ou écarte None) Tj ET
+0.95 0.96 0.98 rg 50 338.0 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 341.0 Tm (La chaîne demande la ligne suivante) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 317.0 Tm (return None termine seulement l'appel du parseur. Il ne termine ni le lecteur ni le) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 303.0 Tm (fichier entier. Le parseur peut être appelé de nouveau pour la prochaine ligne.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 284.0 Tm (Iterator[dict] décrit le flux de dictionnaires valides, sans None transmis à la suite et) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 270.0 Tm (sans liste globale. Ne pas parser une première fois dans main.py avant d'envoyer les) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 256.0 Tm (données à build_pipeline : ce dernier doit recevoir les lignes.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 237.0 Tm (L'événement courant est en RAM. Transmettre l'objet à P2 ne signifie pas nécessairement) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 223.0 Tm (le déplacer ou le copier. P3 met à jour ses résultats puis le dictionnaire peut être) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 209.0 Tm (libéré quand il n'est plus référencé. À la fin, P3 retourne le bilan pour affichage dans) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 195.0 Tm (main.py.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 166.0 Tm (12. Gestion des erreurs) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 137.0 Tm (- Ligne vide : ignorer silencieusement.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 123.0 Tm (- JSON malformé : signaler, retourner None et continuer.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 109.0 Tm (- Champ obligatoire absent : signaler, retourner None et continuer.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 95.0 Tm (- Type incorrect : signaler, retourner None et continuer.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 81.0 Tm (- Date non convertible : signaler, retourner None et continuer.) Tj ET
+0.25 0.39 0.53 rg BT /F2 8 Tf 1 0 0 1 50 807 Tm (ECE | MODULE 1 | ANALYSE DU BESOIN) Tj ET
+0.75 0.81 0.87 RG 0.6 w 50 794 m 545 794 l S
+0.12 0.16 0.22 rg BT /F1 8 Tf 1 0 0 1 50 30 Tm (Referentiel pedagogique - 11 novembre 2026) Tj ET
+0.12 0.16 0.22 rg BT /F2 8 Tf 1 0 0 1 530 30 Tm (5) Tj ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 17 0 R >>
+endobj
+17 0 obj
+<< /Length 5593 >>
+stream
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 770 Tm (- Fichier vide : cas normal avec zéro événement.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 756 Tm (- Fichier introuvable : indiquer le chemin et arrêter la commande.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 742 Tm (- Accès refusé ou encodage UTF-8 invalide : signaler et arrêter la commande.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 723 Tm (Un chemin inexistant n'est pas forcément "corrompu" : il peut être mal saisi ou le) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 709 Tm (fichier peut avoir été déplacé ou supprimé.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 690 Tm (try tente une opération susceptible d'échouer ; except prévoit une réaction à une erreur) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 676 Tm (précise. Cette notion n'apparaît pas dans l'inventaire de cours fourni, mais l'énoncé) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 662 Tm (exige une gestion correcte des exceptions : elle sera expliquée avant utilisation. yield) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 648 Tm (ne gère pas les erreurs.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 619 Tm (13. Générer les données de test) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 590 Tm (Distinction documentaire : le professeur impose un générateur lecteur utilisant yield et) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 576 Tm (yield from. Le script qui fabrique des données synthétiques et le minimum de 10 Go sont) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 562 Tm (des ajouts de l'équipe. Les deux restent dans le périmètre P1 convenu.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 543 Tm (Un petit fichier permet de tester vite des cas connus : événements valides, ligne vide,) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 529 Tm (JSON cassé, champs manquants, types incorrects et date invalide. Les résultats attendus) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 515 Tm (sont connus à l'avance. Une ligne valide, une vide et une malformée produisent un seul) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 501 Tm (dictionnaire valide.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 482 Tm (Le gros fichier sert à vérifier le fonctionnement progressif et la mémoire. Le) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 468 Tm (générateur produit, sérialise et écrit un événement à la fois. Il ne fabrique pas une) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 454 Tm (liste de toutes les lignes.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 435 Tm (L'arrêt dépend de la taille réellement écrite : au moins 10 000 000 000 octets UTF-8. On) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 421 Tm (termine la dernière ligne JSON, quitte à dépasser légèrement la cible. La lecture, elle,) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 407 Tm (continue jusqu'à la fin de tous les fichiers fournis, quelle que soit leur taille.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 388 Tm (Les données doivent être variées et reproductibles. Le fichier volumineux reste dans) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 374 Tm (data/generated/, ignoré par Git. Partager le script, la commande et les mesures, pas le) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 360 Tm (fichier lui-même.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 331 Tm (14. Tests et affichage choisi) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 302 Tm (Décision pédagogique pour les petits tests : afficher le résultat de chaque ligne, puis) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 288 Tm (un résumé. Ce n'est pas une obligation du professeur.) Tj ET
+0.95 0.96 0.98 rg 50 261 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 264 Tm (Ligne 1 : événement valide) Tj ET
+0.95 0.96 0.98 rg 50 247 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 250 Tm (Ligne 2 : ligne vide ignorée) Tj ET
+0.95 0.96 0.98 rg 50 233 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 236 Tm (Ligne 3 : rejetée - JSON malformé) Tj ET
+0.95 0.96 0.98 rg 50 219 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 222 Tm (Ligne 4 : rejetée - timestamp manquant) Tj ET
+0.95 0.96 0.98 rg 50 205 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 208 Tm (Ligne 5 : événement valide) Tj ET
+0.95 0.96 0.98 rg 50 186 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 189 Tm (Lecture terminée) Tj ET
+0.95 0.96 0.98 rg 50 172 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 175 Tm (2 événements valides) Tj ET
+0.95 0.96 0.98 rg 50 158 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 161 Tm (2 lignes rejetées) Tj ET
+0.95 0.96 0.98 rg 50 144 495 14 re f
+0.12 0.16 0.22 rg BT /F3 8.7 Tf 1 0 0 1 56 147 Tm (1 ligne vide ignorée) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 123 Tm (Ne pas utiliser un affichage détaillé pour 10 Go : cela ralentirait le traitement.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 109 Tm (Garder un bilan final.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 90 Tm (Un indice commence souvent à zéro ; le numéro affiché d'une ligne commencera ici à 1. Un) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 76 Tm (compteur indique le nombre de résultats rencontrés : départ 0, première ligne valide 1,) Tj ET
+0.25 0.39 0.53 rg BT /F2 8 Tf 1 0 0 1 50 807 Tm (ECE | MODULE 1 | ANALYSE DU BESOIN) Tj ET
+0.75 0.81 0.87 RG 0.6 w 50 794 m 545 794 l S
+0.12 0.16 0.22 rg BT /F1 8 Tf 1 0 0 1 50 30 Tm (Referentiel pedagogique - 11 novembre 2026) Tj ET
+0.12 0.16 0.22 rg BT /F2 8 Tf 1 0 0 1 530 30 Tm (6) Tj ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 19 0 R >>
+endobj
+19 0 obj
+<< /Length 5240 >>
+stream
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 770 Tm (deuxième ligne valide 2.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 751 Tm (On garde trois compteurs : événements valides, rejets et lignes vides. Une ligne valide) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 737 Tm (puis une invalide donnent 1 valide et 1 rejet. enumerate\(..., start=1\) fournit le numéro) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 723 Tm (et la ligne pendant le parcours.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 704 Tm (Vérifications prévues : ordre de lecture, fichiers vides, fermeture, multisource,) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 690 Tm (dictionnaire valide, champs/types/conversions, retour None, poursuite après rejet,) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 676 Tm (compteurs attendus, taille générée, dernière ligne complète et absence d'accumulation) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 662 Tm (des logs.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 643 Tm (Compter les résultats ne suffit pas : vérifier aussi leur contenu et leurs types,) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 629 Tm (notamment que connection devient un tuple.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 600 Tm (15. Organisation du livrable P1) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 571 Tm (- logengine/ingestion.py : lecture simple et multisource.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 557 Tm (- logengine/parsing.py : décodage, contrôles et conversions.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 543 Tm (- main.py : arguments, raccordement et affichage.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 529 Tm (- scripts/generate_logs.py : génération progressive.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 515 Tm (- Tests P1 : validation des comportements attendus.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 501 Tm (- README et bilan P1 : commandes, contrat, explications et mesures.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 482 Tm (Ne pas développer les modules des autres membres. Le raccordement final dépend de leurs) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 468 Tm (interfaces livrées, notamment les formats des alertes et du bilan P3. Les fichiers déjà) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 454 Tm (créés restent la base à relire et à ajuster après notre analyse.) Tj ET
+0.12 0.29 0.43 rg BT /F2 14 Tf 1 0 0 1 50 425 Tm (16. Référentiel des notions et suite) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 396 Tm (- def et paramètres : fonctions réutilisables.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 382 Tm (- str : ligne de texte.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 368 Tm (- dict : champs d'un événement.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 354 Tm (- for : parcours des lignes et des fichiers.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 340 Tm (- yield : production progressive et suspension.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 326 Tm (- yield from : délégation à un lecteur.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 312 Tm (- return et None : résultat du parsing d'une ligne.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 298 Tm (- in : présence des clés.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 284 Tm (- isinstance\(\) : contrôle des types.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 270 Tm (- len\(\) : nombre d'éléments.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 256 Tm (- tuple\(\) : métadonnées immuables.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 242 Tm (- or : accepter plusieurs types possibles.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 228 Tm (- Compteurs : résumé sans historique des événements.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 214 Tm (- enumerate\(\) : numérotation des lignes.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 200 Tm (- Modules et imports : séparation des responsabilités.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 181 Tm (yield et yield from figurent bien dans l'inventaire fourni du cours sur les fonctions.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 167 Tm (Les outils de lecture, JSON, dates, arguments, tests et exceptions devront être) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 153 Tm (justifiés et expliqués au moment de leur utilisation. Ne pas ajouter une technique sans) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 139 Tm (besoin identifié.) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 120 Tm (Ordre de codage : lecteur simple, multisource, parsing, validation et erreurs, affichage) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 106 Tm (des petits tests, générateur, vérifications et documentation. Utiliser le Python de) Tj ET
+0.12 0.16 0.22 rg BT /F1 10.5 Tf 1 0 0 1 50 92 Tm (.venv et la bibliothèque standard ; ne pas installer de dépendances inutilement.) Tj ET
+0.25 0.39 0.53 rg BT /F2 8 Tf 1 0 0 1 50 807 Tm (ECE | MODULE 1 | ANALYSE DU BESOIN) Tj ET
+0.75 0.81 0.87 RG 0.6 w 50 794 m 545 794 l S
+0.12 0.16 0.22 rg BT /F1 8 Tf 1 0 0 1 50 30 Tm (Referentiel pedagogique - 11 novembre 2026) Tj ET
+0.12 0.16 0.22 rg BT /F2 8 Tf 1 0 0 1 530 30 Tm (7) Tj ET
+endstream
+endobj
+xref
+0 20
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000162 00000 n 
+0000000259 00000 n 
+0000000361 00000 n 
+0000000456 00000 n 
+0000000608 00000 n 
+0000004973 00000 n 
+0000005125 00000 n 
+0000010407 00000 n 
+0000010561 00000 n 
+0000015843 00000 n 
+0000015997 00000 n 
+0000020753 00000 n 
+0000020907 00000 n 
+0000025987 00000 n 
+0000026141 00000 n 
+0000031787 00000 n 
+0000031941 00000 n 
+trailer
+<< /Size 20 /Root 1 0 R >>
+startxref
+37234
+%%EOF

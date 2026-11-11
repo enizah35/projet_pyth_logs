@@ -1,11 +1,10 @@
-"""Vérifier le raccordement du main sans livrer P1 ou P3 à leur place."""
+"""Vérifier le raccordement des trois parties dans main."""
 
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from types import ModuleType
 import unittest
 from unittest.mock import Mock, patch
 
@@ -29,11 +28,8 @@ class MainTests(unittest.TestCase):
             "first": make_record(level=" warning ", ip="192.168.1.66"),
             "second": make_record(level=" info "),
         }
-        ingestion = ModuleType("logengine.ingestion")
-        ingestion.read_sources = Mock(return_value=source())
-        parsing = ModuleType("logengine.parsing")
-        parsing.parse_line = Mock(side_effect=records.__getitem__)
-        analysis = ModuleType("logengine.analysis")
+        read_sources = Mock(return_value=source())
+        parse_line = Mock(side_effect=records.__getitem__)
 
         def analyze(checked, *, blacklist, threshold):
             self.assertEqual(seen, [])
@@ -45,18 +41,15 @@ class MainTests(unittest.TestCase):
             self.assertEqual(output[1]["alerts"], [])
             return {"total": len(output)}
 
-        analysis.analyze = Mock(side_effect=analyze)
-        with patch.dict("sys.modules", {
-            "logengine.ingestion": ingestion,
-            "logengine.parsing": parsing,
-            "logengine.analysis": analysis,
-        }):
+        fake_analyze = Mock(side_effect=analyze)
+        # On remplace les fonctions de P1 et P3 par des versions de test.
+        with patch.object(main, "read_sources", read_sources),                 patch.object(main, "parse_line", parse_line),                 patch.object(main, "analyze", fake_analyze):
             result = main.run_project(paths, blacklist, 3)
 
         self.assertEqual(result, {"total": 2})
-        ingestion.read_sources.assert_called_once_with(paths)
-        self.assertEqual(parsing.parse_line.call_count, 3)
-        analysis.analyze.assert_called_once()
+        read_sources.assert_called_once_with(paths)
+        self.assertEqual(parse_line.call_count, 3)
+        fake_analyze.assert_called_once()
 
     def test_cli_displays_p3_summary_and_exports_real_audit(self) -> None:
         record = make_record()
@@ -85,21 +78,6 @@ class MainTests(unittest.TestCase):
             self.assertEqual(scope["locals"]["blacklist"], "frozenset")
             self.assertEqual(scope["locals"]["summary"], "dict")
             self.assertEqual(result, 0)
-
-    def test_reports_missing_team_module_but_keeps_other_import_errors_visible(self) -> None:
-        for name in ("logengine.ingestion", "logengine.parsing", "logengine.analysis"):
-            with self.subTest(name=name):
-                stderr = StringIO()
-                with patch.object(main, "run_project", side_effect=ModuleNotFoundError(name=name)):
-                    with redirect_stderr(stderr), self.assertRaises(SystemExit) as error:
-                        main.main([])
-                self.assertEqual(error.exception.code, 2)
-                self.assertIn(name, stderr.getvalue())
-                self.assertIn("--demo-p2", stderr.getvalue())
-
-        with patch.object(main, "run_project", side_effect=ModuleNotFoundError(name="other_dependency")):
-            with self.assertRaises(ModuleNotFoundError):
-                main.main([])
 
     def test_invalid_threshold_stops_before_processing(self) -> None:
         for threshold in ("0", "-2", "abc"):
