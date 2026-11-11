@@ -25,7 +25,9 @@ def describe_scope(scope: dict) -> dict:
     return types
 
 
-def export_audit(path, global_scope: dict, local_scope: dict) -> None:
+def export_audit(
+    path: str | os.PathLike, global_scope: dict, local_scope: dict
+) -> None:
     """Écrire le rapport d'audit dans le fichier path.
 
     globals() et locals() sont appelés par le code qui veut être audité,
@@ -33,6 +35,8 @@ def export_audit(path, global_scope: dict, local_scope: dict) -> None:
         export_audit("output/audit.json", globals(), locals())
     Si on les appelait dans cette fonction, on obtiendrait les variables
     de audit.py et non celles de main.py.
+
+    path peut être une chaîne ou un chemin Path (os.PathLike).
     """
     report = {
         "globals": describe_scope(global_scope),

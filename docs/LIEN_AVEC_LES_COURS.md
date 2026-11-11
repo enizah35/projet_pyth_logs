@@ -44,7 +44,8 @@ les pages du PDF.
    `map` reçoit une fonction sans l'appeler immédiatement. `filter(None, ...)`
    retire les `None` produits par le parseur pour les lignes invalides.
 4. `normalize_record` copie le dictionnaire, nettoie les chaînes et reconstruit
-   le tuple de connexion. `route_value` distingue les structures par `match-case`.
+   le tuple de connexion. `route_value` distingue les structures par `match-case`, avec des motifs
+   de classe, de dictionnaire et de séquence.
 5. `apply_security_rules` parcourt les fonctions reçues dans `*rules` et leur
    transmet la configuration avec `**config`. Il ajoute les alertes au seul
    événement courant, puis le transmet avec `yield`.
@@ -88,6 +89,7 @@ sont pas présentés comme des chapitres étudiés en détail dans les supports.
 | `Path` de `pathlib` | Représenter les chemins dans le main et le lecteur P1 |
 | `os.path` / `os.makedirs` | Construire un chemin et créer le dossier de l'audit (P2) |
 | Annotations `dict`, `str`, `int`, `X \| None` | Documenter entrées et sorties, conformément au critère de typage du sujet ; elles ne valident pas les données à l'exécution |
+| `Iterable`, `Iterator`, `Callable` de `collections.abc` | Annoter un objet parcourable, un flux fourni élément par élément et une fonction reçue en argument (parseur, règle) |
 | `logging` | Signaler les lignes rejetées par le parseur P1 et les erreurs de fichier |
 | `json.dump` / `json.dumps` | Écrire l'audit / convertir le bilan en texte JSON |
 | `json_value` dans le main | Convertir les ensembles en listes et les dates en chaînes pour afficher le bilan |

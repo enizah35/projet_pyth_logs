@@ -4,7 +4,12 @@ Une règle est une simple fonction : elle reçoit un événement et la
 configuration, puis renvoie une alerte (un dictionnaire) ou None.
 Le moteur reçoit ces fonctions en arguments, ce qui permet d'ajouter une
 règle sans toucher au moteur.
+
+Callable[..., dict | None] désigne une fonction, quels que soient ses
+arguments, qui renvoie un dictionnaire ou None : c'est le type d'une règle.
 """
+
+from collections.abc import Callable, Iterable, Iterator
 
 
 def make_alert(record: dict, alert_type: str, message: str) -> dict:
@@ -19,7 +24,7 @@ def make_alert(record: dict, alert_type: str, message: str) -> dict:
     }
 
 
-def rule_blacklist(record: dict, **config) -> dict | None:
+def rule_blacklist(record: dict, **config: object) -> dict | None:
     """Alerte si l'IP de l'événement figure dans la blacklist.
 
     La blacklist arrive par la configuration : config["blacklist"].
@@ -34,7 +39,7 @@ def rule_blacklist(record: dict, **config) -> dict | None:
     return None
 
 
-def rule_critical(record: dict, **config) -> dict | None:
+def rule_critical(record: dict, **config: object) -> dict | None:
     """Alerte si l'événement est de niveau CRITICAL.
 
     Deuxième règle, facultative : elle montre que le moteur accepte
@@ -46,7 +51,11 @@ def rule_critical(record: dict, **config) -> dict | None:
     return None
 
 
-def apply_security_rules(*rules, records, **config):
+def apply_security_rules(
+    *rules: Callable[..., dict | None],
+    records: Iterable[dict],
+    **config: object,
+) -> Iterator[dict]:
     """Appliquer chaque règle à chaque événement, un événement à la fois.
 
     *rules   : les fonctions de règles, regroupées par Python dans un tuple.

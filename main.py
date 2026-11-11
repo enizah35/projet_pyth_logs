@@ -91,7 +91,7 @@ def load_blacklist(path: str | Path) -> frozenset[str]:
 def run_project(
     paths: list[Path], blacklist: frozenset[str], threshold: int
 ) -> dict:
-    """Raccorder les modules de l'équipe et consommer le flux une seule fois."""
+    """Raccorder les modules de l'équipe et consommer le flux une fois."""
     # Chaque étape produit un itérateur : aucun fichier complet en liste.
     lines = read_sources(paths)                           # P1
     records = build_pipeline(lines, parser=parse_line)    # P1 + P2

@@ -55,15 +55,32 @@ class NormalizationTests(unittest.TestCase):
 class RoutingTests(unittest.TestCase):
     def test_supported_formats(self) -> None:
         cases = (
-            ("message", "text"),
-            ({"level": "ERROR", "code": 403}, "event"),
-            (("192.168.1.20", 443, "HTTPS"), "connection"),
+            ("message", "text", "message"),
+            (
+                {"event": "login", "status": "failure", "path": "/"},
+                "event",
+                "login : failure",
+            ),
+            ({"level": "ERROR", "code": 403}, "event", "ERROR code 403"),
+            ({"other": 1}, "event", "événement structuré"),
+            (
+                ("192.168.1.20", 443, "HTTPS"),
+                "connection",
+                "HTTPS 192.168.1.20:443",
+            ),
         )
-        for value, kind in cases:
+        for value, kind, summary in cases:
             with self.subTest(value=value):
                 self.assertEqual(
-                    route_value(value), {"kind": kind, "value": value}
+                    route_value(value),
+                    {"kind": kind, "value": value, "summary": summary},
                 )
+
+    def test_dict_pattern_checks_value_types(self) -> None:
+        # Un code qui n'est pas un entier ne correspond pas au motif
+        # {"level": ..., "code": int()} : on retombe sur le cas dict().
+        result = route_value({"level": "ERROR", "code": "403"})
+        self.assertEqual(result["summary"], "événement structuré")
 
     def test_unsupported_format_uses_fallback(self) -> None:
         values = (None, 123, ("incomplete",), ["192.168.1.20", 443, "HTTPS"])

@@ -58,28 +58,47 @@ devenir `"DEBUG"` pour être comparé aux quatre niveaux du `frozenset` `LEVELS`
 
 ## 3. Analyse de structure avec `match-case`
 
-`route_value` reconnaît le format d'une valeur sans enchaîner les `if`/`elif` :
+`route_value` reconnaît le format d'une valeur sans enchaîner les `if`/`elif`.
+Version simplifiée (chaque cas renvoie aussi la valeur d'origine) :
 
 ```python
 match value:
     case str():
-        return {"kind": "text", "value": value}
+        return {"kind": "text", "summary": value}
+    case {"event": str() as event, "status": str() as status}:
+        return {"kind": "event", "summary": f"{event} : {status}"}
+    case {"level": str() as level, "code": int() as code}:
+        return {"kind": "event", "summary": f"{level} code {code}"}
     case dict():
-        return {"kind": "event", "value": value}
-    case (str(), int(), str()) if isinstance(value, tuple):
-        return {"kind": "connection", "value": value}
+        return {"kind": "event", "summary": "événement structuré"}
+    case (str() as ip, int() as port, str() as protocol) if isinstance(
+        value, tuple
+    ):
+        return {"kind": "connection", "summary": f"{protocol} {ip}:{port}"}
     case _:
-        return {"kind": "unknown", "value": value}
+        return {"kind": "unknown", "summary": "format non reconnu"}
 ```
 
 Les trois formats demandés par l'énoncé sont couverts : chaîne brute,
-dictionnaire d'événement et tuple de connexion. Le motif
-`(str(), int(), str())` accepterait aussi une liste de trois éléments ; la
-condition `if isinstance(value, tuple)` impose un vrai tuple. Le cas `_` joue
-le rôle d'un `else`.
+dictionnaire d'événement et tuple de connexion. Trois sortes de motifs sont
+utilisées :
+
+- **motif de classe** (`str()`, `dict()`) : vérifie seulement le type ;
+- **motif de dictionnaire** (`{"level": str() as level, "code": int() as code}`,
+  sur le modèle de l'exemple de l'énoncé) : vérifie que les clés existent et
+  que leurs valeurs ont le bon type, puis les range dans des variables. Les
+  autres clés du dictionnaire sont acceptées. Un code écrit `"403"` (texte) ne
+  correspond pas au motif et retombe sur le cas `dict()` ;
+- **motif de séquence** (`(str() as ip, int() as port, str() as protocol)`) :
+  déballe les trois éléments du tuple de connexion. Il accepterait aussi une
+  liste ; la condition `if isinstance(value, tuple)` impose un vrai tuple.
+
+L'ordre des cas compte : les motifs précis passent avant `dict()`, qui
+attraperait sinon tous les dictionnaires. Le cas `_` joue le rôle d'un `else`.
 
 Chaque événement normalisé reçoit `payload_description` et
-`connection_description`, qui indiquent le format reconnu.
+`connection_description`, qui indiquent le format reconnu et son résumé, par
+exemple `login : failure` ou `HTTPS 192.168.1.20:443`.
 
 ## 4. Moteur de règles avec `*args` et `**kwargs`
 
@@ -127,6 +146,33 @@ Format d'une alerte, convenu avec P3 :
     "message": "IP présente dans la blacklist",
 }
 ```
+
+### Typage
+
+Les fonctions P2 sont annotées pour documenter leurs entrées et sorties,
+comme le demande le critère de qualité du barème :
+
+```python
+def build_pipeline(
+    lines: Iterable[str],
+    parser: Callable[[str], dict | None] = parse_line,
+) -> Iterator[dict]:
+
+def apply_security_rules(
+    *rules: Callable[..., dict | None],
+    records: Iterable[dict],
+    **config: object,
+) -> Iterator[dict]:
+```
+
+- `Iterable[str]` : un objet parcourable avec `for`, ici des lignes ;
+- `Iterator[dict]` : un objet qui fournit ses dictionnaires un par un ;
+- `Callable[[str], dict | None]` : une fonction qui reçoit une chaîne et
+  renvoie un dictionnaire ou `None`, comme le parseur ;
+- `Callable[..., dict | None]` : une règle, quels que soient ses arguments.
+
+Ces annotations ne vérifient rien pendant l'exécution : elles servent à la
+lecture et aux outils de vérification.
 
 ## 5. Audit des portées avec `globals()` et `locals()`
 

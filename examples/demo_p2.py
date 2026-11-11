@@ -1,5 +1,6 @@
 """Démonstration P2 sur dictionnaires manuels : python -m examples.demo_p2."""
 
+from collections.abc import Callable
 from datetime import datetime
 import os
 
@@ -42,7 +43,7 @@ def sample_records() -> tuple[dict, ...]:
     )
 
 
-def run_scenario(title: str, *rules) -> None:
+def run_scenario(title: str, *rules: Callable[..., dict | None]) -> None:
     """Lancer la chaîne P2 avec les règles reçues et afficher le résultat.
 
     Les règles sont des fonctions passées en arguments : on change de

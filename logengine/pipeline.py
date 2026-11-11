@@ -6,34 +6,86 @@ ligne est invalide). Ce module reçoit ces dictionnaires, les nettoie et
 
 Rien n'est stocké dans une liste : map() et filter() ne calculent un
 élément que lorsque l'étape suivante le demande.
+
+Annotations utilisées (elles documentent le code, sans rien vérifier
+pendant l'exécution) :
+- Iterable[str] : un objet parcourable avec for, ici des lignes de texte ;
+- Iterator[dict] : un objet qui fournit ses dictionnaires un par un ;
+- Callable[[str], dict | None] : une fonction qui reçoit une chaîne et
+  renvoie un dictionnaire ou None, comme le parseur de P1.
 """
+
+from collections.abc import Callable, Iterable, Iterator
+
+from .parsing import parse_line
 
 # Les quatre niveaux acceptés. Un frozenset ne peut pas être modifié et le
 # test "x in LEVELS" est rapide.
 LEVELS = frozenset({"INFO", "WARNING", "ERROR", "CRITICAL"})
 
 
-def route_value(value) -> dict:
+def route_value(value: object) -> dict:
     """Reconnaître le format d'une valeur avec match-case.
 
     Trois formats sont attendus dans un log :
     - une chaîne brute, par exemple "Service unavailable" ;
-    - un dictionnaire, par exemple {"event": "login", "status": "failure"} ;
+    - un dictionnaire, par exemple {"event": "login", "status": "failure"}
+      ou {"level": "ERROR", "code": 503} ;
     - un tuple de connexion (ip, port, protocole).
     Tout le reste est classé "unknown".
+
+    Le résultat contient le format ("kind"), la valeur d'origine et un
+    résumé lisible construit à partir des éléments extraits par le motif.
     """
     match value:
         case str():
-            return {"kind": "text", "value": value}
+            return {"kind": "text", "value": value, "summary": value}
+
+        # Motif de dictionnaire : il vérifie que les clés existent et
+        # range leurs valeurs dans les variables event et status.
+        # Les autres clés du dictionnaire (comme "path") sont acceptées.
+        case {"event": str() as event, "status": str() as status}:
+            return {
+                "kind": "event",
+                "value": value,
+                "summary": f"{event} : {status}",
+            }
+
+        # Même principe pour un événement d'erreur avec un code numérique.
+        case {"level": str() as level, "code": int() as code}:
+            return {
+                "kind": "event",
+                "value": value,
+                "summary": f"{level} code {code}",
+            }
+
+        # Tout autre dictionnaire reste un événement structuré.
         case dict():
-            return {"kind": "event", "value": value}
-        # Le motif (str(), int(), str()) accepte aussi une liste de trois
-        # éléments. La condition après "if" impose un vrai tuple.
-        case (str(), int(), str()) if isinstance(value, tuple):
-            return {"kind": "connection", "value": value}
+            return {
+                "kind": "event",
+                "value": value,
+                "summary": "événement structuré",
+            }
+
+        # Motif de séquence : il déballe les trois éléments et vérifie
+        # leurs types. Il accepterait aussi une liste de trois éléments ;
+        # la condition après "if" impose un vrai tuple.
+        case (str() as ip, int() as port, str() as protocol) if isinstance(
+            value, tuple
+        ):
+            return {
+                "kind": "connection",
+                "value": value,
+                "summary": f"{protocol} {ip}:{port}",
+            }
+
         case _:
             # "_" attrape tous les cas restants, comme un else.
-            return {"kind": "unknown", "value": value}
+            return {
+                "kind": "unknown",
+                "value": value,
+                "summary": "format non reconnu",
+            }
 
 
 def normalize_record(record: dict) -> dict:
@@ -84,7 +136,7 @@ def has_known_level(record: dict) -> bool:
     return False
 
 
-def normalize_records(records) -> filter:
+def normalize_records(records: Iterable[dict]) -> Iterator[dict]:
     """Nettoyer un flux de dictionnaires puis retirer les niveaux inconnus.
 
     records peut être une liste de test ou un itérateur venant de P1.
@@ -95,20 +147,16 @@ def normalize_records(records) -> filter:
     return filter(has_known_level, normalized)
 
 
-def build_pipeline(lines, parser=None) -> filter:
+def build_pipeline(
+    lines: Iterable[str],
+    parser: Callable[[str], dict | None] = parse_line,
+) -> Iterator[dict]:
     """Enchaîner les étapes : lignes -> dictionnaires -> événements propres.
 
     lines  : les lignes de texte fournies par P1, une à la fois.
     parser : la fonction qui transforme une ligne en dictionnaire. Par
              défaut c'est parse_line de P1 ; les tests en passent une autre.
     """
-    if parser is None:
-        # Import placé ici pour que le reste du module fonctionne même
-        # si le fichier de P1 n'est pas encore présent.
-        from .parsing import parse_line
-
-        parser = parse_line
-
     # 1. filter + lambda : on écarte les lignes vides ou faites d'espaces.
     nonempty_lines = filter(lambda line: line.strip() != "", lines)
     # 2. map : la fonction est passée sans parenthèses, map l'appellera
