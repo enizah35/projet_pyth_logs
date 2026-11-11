@@ -79,7 +79,8 @@ est écrit dans `output/p2/audit.json`. Ce mode n'effectue pas la détection de
 force brute.
 
 Les modules P2 sont `logengine/pipeline.py`, `logengine/rules.py` et
-`logengine/audit.py`.
+`logengine/audit.py`. Leur fonctionnement est expliqué dans
+[la partie P2 du rapport](docs/rapport_P2.md).
 
 ## Diagnostic du parseur
 
